@@ -1,5 +1,5 @@
-# system-of-record
-Beta version of the system of record
+# mint
+Beta version of the mint
 
 Under construction.
 
