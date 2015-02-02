@@ -10,7 +10,7 @@ app = Flask(__name__)
 def check_status():
     return "Everything is OK"
 
-@app.route("/signdata", methods=["POST"])
+@app.route("/sign", methods=["POST"])
 def new_title_version():
     title = json.dumps(request.get_json())
 
@@ -25,25 +25,25 @@ def new_title_version():
     return str(sig)
 
 
-@app.route("/verifydata", methods=["POST"])
+@app.route("/verify", methods=["POST"])
 def verify_title_version():
 
-    json_as_dict = request.get_json()
+    signed_title = request.get_json()
 
-    signed_data = json_as_dict['signeddata']
+    signature = signed_title['signature']
 
     #signed_data is currently unicode.  Incompatible with JWS.  Convert to ASCII
-    signed_data = signed_data.encode('ascii', 'ignore')
-    original_data = json.dumps(json_as_dict['originaldata'])
+    signature = signature.encode('ascii', 'ignore')
+    title = json.dumps(signed_title['data'])
 
     # #import keys
     key_data = open('test_keys/test_public.pem').read()
     key = RSA.importKey(key_data)
 
     header = { 'alg': 'RS256' }
-    the_result = jws.verify(header, original_data, signed_data, key)
+    the_result = jws.verify(header, title, signature, key)
 
     if the_result:
-        return "validated"
+        return "verified"
     else:
         return "you'll never see this message, jws will show its own."
