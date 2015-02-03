@@ -1,4 +1,5 @@
 from flask import Flask, request
+import requests
 from Crypto.PublicKey import RSA
 import os
 import json
@@ -13,16 +14,8 @@ def check_status():
 @app.route("/sign", methods=["POST"])
 def new_title_version():
     title = json.dumps(request.get_json())
-
-    #import keys
-    key_data = open('test_keys/test_private.pem').read()
-    key = RSA.importKey(key_data)
-
-    header = { 'alg': 'RS256' }
-
-    sig = jws.sign(header, title, key)
-
-    return str(sig)
+    signed_title = return_signed_data(title)
+    return str(signed_title)
 
 
 @app.route("/verify", methods=["POST"])
@@ -47,3 +40,32 @@ def verify_title_version():
         return "verified"
     else:
         return "you'll never see this message, jws will show its own."
+
+@app.route("/insert", methods=["POST"])
+def insert_new_title_version():
+    data = json.dumps(request.get_json())
+    signed_data = return_signed_data(data)
+
+    server = 'http://localhost:5010' #set to and env var
+    route = '/insert'
+    url = server + route
+
+    # headers = {'Content-Type': 'application/json'}
+    #
+    # response = requests.post(url, data=json.dumps(signed_data), headers=headers)
+
+    return url
+
+
+
+def return_signed_data(data):
+
+    #import keys
+    key_data = open('test_keys/test_private.pem').read()
+    key = RSA.importKey(key_data)
+
+    header = { 'alg': 'RS256' }
+
+    sig = jws.sign(header, data, key)
+
+    return str(sig)
