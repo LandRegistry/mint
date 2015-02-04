@@ -6,6 +6,7 @@ import json
 import jws
 
 app = Flask(__name__)
+# app.config.from_object() = True
 
 @app.route("/")
 def check_status():
@@ -45,17 +46,28 @@ def verify_title_version():
 def insert_new_title_version():
     data = json.dumps(request.get_json())
     signed_data = return_signed_data(data)
+    # full_data = {data + signed_data}
 
-    server = 'http://localhost:5010' #set to and env var
+    server = 'http://192.168.50.5:5000' #set to and env var
     route = '/insert'
     url = server + route
 
-    # headers = {'Content-Type': 'application/json'}
-    #
-    # response = requests.post(url, data=json.dumps(signed_data), headers=headers)
+    headers = {'Content-Type': 'application/json'}
 
-    return url
+    response = requests.post(url, data=json.dumps(signed_data), headers=headers)
 
+    return response.text
+
+@app.route("/checksystemofrecord")
+def check_system_of_record():
+    # server = app.config['SYSTEM_OF_RECORD']
+    server = 'http://192.168.50.5:5000'
+    route = '/'
+    url = server + route
+
+    response = requests.get(url)
+
+    return response.text
 
 
 def return_signed_data(data):

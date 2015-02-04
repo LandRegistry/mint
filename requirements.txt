@@ -4,3 +4,4 @@ gunicorn==19.1.1
 pycrypto==2.6.1
 jws==0.1.2
 MarkupSafe==0.23
+utils==0.7
