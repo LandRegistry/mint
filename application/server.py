@@ -64,18 +64,6 @@ def insert_new_title_version():
     return response.text
 
 
-@app.route("/checksystemofrecord")
-def check_system_of_record():
-    # server = app.config['SYSTEM_OF_RECORD']
-    server = app.config['SYSTEM_OF_RECORD']
-    route = '/'
-    url = server + route
-
-    response = requests.get(url)
-
-    return response.text
-
-
 def return_signed_data(data):
 
     #import keys
@@ -91,8 +79,7 @@ def return_signed_data(data):
 
 def build_system_of_record_json_string(original_data_dict, signed_data_string):
 
-    signed_data_string_to_dict = {"sig": signed_data_string}
-    original_data_dict.update(signed_data_string_to_dict)
-    system_of_record_json = json.dumps(original_data_dict)
+    system_of_record_dict = {"data": original_data_dict, "sig":signed_data_string}
+    system_of_record_json = json.dumps(system_of_record_dict)
 
     return system_of_record_json
