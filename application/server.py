@@ -9,9 +9,11 @@ import jws
 app = Flask(__name__)
 app.config.from_object(os.environ.get('SETTINGS'))
 
+
 @app.route("/")
 def check_status():
     return "Everything is OK"
+
 
 @app.route("/sign", methods=["POST"])
 def new_title_version():
@@ -43,11 +45,13 @@ def verify_title_version():
     else:
         return "you'll never see this message, jws will show its own."
 
+
 @app.route("/insert", methods=["POST"])
 def insert_new_title_version():
-    data = json.dumps(request.get_json())
+    data_dict = request.get_json()
+    data = json.dumps(data_dict)
     signed_data = return_signed_data(data)
-    # full_data = {data + signed_data}
+    save_this = build_system_of_record_json_string(data_dict, signed_data)
 
     server = app.config['SYSTEM_OF_RECORD']
     route = '/insert'
@@ -55,9 +59,10 @@ def insert_new_title_version():
 
     headers = {'Content-Type': 'application/json'}
 
-    response = requests.post(url, data=json.dumps(signed_data), headers=headers)
+    response = requests.post(url, data=json.dumps(save_this), headers=headers)
 
     return response.text
+
 
 @app.route("/checksystemofrecord")
 def check_system_of_record():
@@ -82,3 +87,12 @@ def return_signed_data(data):
     sig = jws.sign(header, data, key)
 
     return str(sig)
+
+
+def build_system_of_record_json_string(original_data_dict, signed_data_string):
+
+    signed_data_string_to_dict = {"sig": signed_data_string}
+    original_data_dict.update(signed_data_string_to_dict)
+    system_of_record_json = json.dumps(original_data_dict)
+
+    return system_of_record_json
