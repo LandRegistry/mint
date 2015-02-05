@@ -5,8 +5,9 @@ import os
 import json
 import jws
 
+
 app = Flask(__name__)
-# app.config.from_object() = True
+app.config.from_object(os.environ.get('SETTINGS'))
 
 @app.route("/")
 def check_status():
@@ -48,7 +49,7 @@ def insert_new_title_version():
     signed_data = return_signed_data(data)
     # full_data = {data + signed_data}
 
-    server = 'http://192.168.50.5:5000' #set to and env var
+    server = app.config['SYSTEM_OF_RECORD']
     route = '/insert'
     url = server + route
 
@@ -61,7 +62,7 @@ def insert_new_title_version():
 @app.route("/checksystemofrecord")
 def check_system_of_record():
     # server = app.config['SYSTEM_OF_RECORD']
-    server = 'http://192.168.50.5:5000'
+    server = app.config['SYSTEM_OF_RECORD']
     route = '/'
     url = server + route
 
