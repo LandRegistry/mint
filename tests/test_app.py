@@ -6,6 +6,10 @@ from application.server import return_signed_data
 
 import os
 
+TEST_TITLE = '{"titleno": "DN1"}'
+TEST_SIGNED_TITLE = "b6vjrGcLzq97_2D5h286TkRu_Kf0GonPDsndkGjhtrTBlHKIcF5H18hu635VEork_kr811ZS7B-4FuaCQFk6CvIQpNhxaMxI7m56HRQnj8ZsRSkX74xEKQUqf3k26ZdkODWJVsKyd_grJ39tfwMvJJb9V5REpRa8qXGr1eXgK4gEqwmo2fkow_W8q_yqMTTm9jOuVeFaqCQzAJBFUEWgkuTLRd91Wm8MlF4RhG_w1YktGzVath3tvaiTXNfiyfZbzPu9viotpP81gsFpWw6xocrUDbKhhXw2rm0BU2NvqSMXJ3X1qZs-VZibnWRJNNyt3sFapDojlDs99cL_uQ2aBQ"
+VERIFY_DATA = '{"sig" : "b6vjrGcLzq97_2D5h286TkRu_Kf0GonPDsndkGjhtrTBlHKIcF5H18hu635VEork_kr811ZS7B-4FuaCQFk6CvIQpNhxaMxI7m56HRQnj8ZsRSkX74xEKQUqf3k26ZdkODWJVsKyd_grJ39tfwMvJJb9V5REpRa8qXGr1eXgK4gEqwmo2fkow_W8q_yqMTTm9jOuVeFaqCQzAJBFUEWgkuTLRd91Wm8MlF4RhG_w1YktGzVath3tvaiTXNfiyfZbzPu9viotpP81gsFpWw6xocrUDbKhhXw2rm0BU2NvqSMXJ3X1qZs-VZibnWRJNNyt3sFapDojlDs99cL_uQ2aBQ", "data":{"titleno" : "DN1"}}'
+
 class TestSequenceFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -20,10 +24,21 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual('{"sig": {"b": "2"}, "data": {"a": "1"}}', test_string)
 
     def test_return_signed_data(self):
-        signed_string = return_signed_data('{"titleno": "DN1"}')
-        self.assertEqual(signed_string, "b6vjrGcLzq97_2D5h286TkRu_Kf0GonPDsndkGjhtrTBlHKIcF5H18hu635VEork_kr811ZS7B-4FuaCQFk6CvIQpNhxaMxI7m56HRQnj8ZsRSkX74xEKQUqf3k26ZdkODWJVsKyd_grJ39tfwMvJJb9V5REpRa8qXGr1eXgK4gEqwmo2fkow_W8q_yqMTTm9jOuVeFaqCQzAJBFUEWgkuTLRd91Wm8MlF4RhG_w1YktGzVath3tvaiTXNfiyfZbzPu9viotpP81gsFpWw6xocrUDbKhhXw2rm0BU2NvqSMXJ3X1qZs-VZibnWRJNNyt3sFapDojlDs99cL_uQ2aBQ")
+        signed_string = return_signed_data(TEST_TITLE)
+        self.assertEqual(signed_string, TEST_SIGNED_TITLE)
 
-    # test sign
-    # test verify
-    # test insert
+    def test_sign_route(self):
+        headers = {'content-Type': 'application/json'}
+        response = self.app.post('/sign', data = TEST_TITLE, headers = headers)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.data, TEST_SIGNED_TITLE)
+
+    def test_verify_route(self):
+        headers = {'content-Type': 'application/json'}
+        response = self.app.post('/verify', data = VERIFY_DATA, headers = headers)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.data, "verified")
+
+    # def test_insert_route(self):
+
 
