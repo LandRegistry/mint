@@ -7,3 +7,6 @@ pip install -r /vagrant/requirements.txt
 apt-get -y install gnupg2
 
 gem install foreman
+
+apt-get install python-tk
+

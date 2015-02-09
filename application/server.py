@@ -27,7 +27,7 @@ def verify_title_version():
 
     signed_title = request.get_json()
 
-    signature = signed_title['signature']
+    signature = signed_title['sig']
 
     #signed_data is currently unicode.  Incompatible with JWS.  Convert to ASCII
     signature = signature.encode('ascii', 'ignore')
