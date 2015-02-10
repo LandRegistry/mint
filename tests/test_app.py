@@ -5,7 +5,6 @@ from application.server import build_system_of_record_json_string
 from application.server import return_signed_data
 import os
 
-import requests
 import mock
 
 TEST_TITLE = '{"titleno": "DN1"}'
@@ -49,5 +48,6 @@ class TestSequenceFunctions(unittest.TestCase):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data = TEST_TITLE, headers = headers)
         self.assertEqual(response.data, "row inserted")
-        
+
+
 

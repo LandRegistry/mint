@@ -8,9 +8,17 @@ Under construction.
 - contents of the requirements.txt
 
 ##how to run
+In virtual machine
 
 ```
-source ./run.sh
+./run.sh
+```
+
+##how to run tests
+In virtual machine
+
+```
+./test.sh
 ```
 
 ##Example curls
