@@ -1,7 +1,10 @@
 # mint
 Beta version of the mint
 
-Under construction.
+Currently this service can:
+- Sign data.
+- Verify signed data
+- Sign and post data to the System of Record service.
 
 ##dependencies:
 - python 2 (needed for the encryption modules)
