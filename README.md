@@ -11,7 +11,6 @@ Currently this service can:
 - contents of the requirements.txt
 
 ##how to run
-In virtual machine
 
 ```
 vagrant up
