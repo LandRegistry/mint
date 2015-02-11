@@ -14,6 +14,18 @@ Currently this service can:
 In virtual machine
 
 ```
+vagrant up
+```
+
+```
+vagrant ssh
+```
+
+```
+cd /vagrant
+```
+
+```
 ./run.sh
 ```
 
