@@ -10,7 +10,7 @@ Currently this service can:
 - python 2 (needed for the encryption modules)
 - contents of the requirements.txt
 
-##how to run
+##how to run in development
 
 ```
 vagrant up
@@ -23,6 +23,12 @@ vagrant ssh
 ```
 cd /vagrant
 ```
+
+```
+./run.sh -d
+```
+
+To the run this in production use the following command
 
 ```
 ./run.sh

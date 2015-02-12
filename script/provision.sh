@@ -1,12 +1,7 @@
-apt-get update
+yum install -y python-devel
 
-apt-get install -y python3-pip
+cd /vagrant
 
-pip install -r /vagrant/requirements.txt
+source install.sh
 
-apt-get -y install gnupg2
-
-gem install foreman
-
-apt-get install python-tk
-
+gem install --no-ri --no-rdoc foreman
