@@ -44,6 +44,7 @@ In virtual machine
 ```
 ./test.sh
 ```
+The tests output a results.xml which is in junit format. 
 
 ##Example curls
 
