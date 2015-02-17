@@ -39,11 +39,13 @@ To the run this in production use the following command
 ```
 
 ##how to run tests
+
 In virtual machine
 
 ```
 ./test.sh
 ```
+The tests output a results.xml which is in junit format.
 
 ##Example curls
 
