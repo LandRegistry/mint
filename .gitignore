@@ -7,6 +7,8 @@ __pycache__/
 # C extensions
 *.so
 
+results.xml
+
 # Distribution / packaging
 .Python
 env/
