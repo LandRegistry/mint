@@ -1,3 +1,7 @@
 yum install -y python-devel
 
-pip install -r requirements.txt
+yum install -y python-pip
+
+yum groupinstall -y "Development Tools"
+
+pip install -r /vagrant/code/mint/requirements.txt
