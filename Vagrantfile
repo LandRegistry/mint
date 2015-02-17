@@ -8,8 +8,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "landregistry/centos-beta"
   config.vm.network "forwarded_port", guest: 5000, host: 5000
-  config.vm.provision :shell, :path => 'script/provision.sh'
+  config.vm.provision :shell, :path => 'scripts/provision.sh'
 
 end
-
-
