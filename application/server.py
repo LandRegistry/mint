@@ -59,7 +59,7 @@ def insert_new_title_version():
 
     headers = {'Content-Type': 'application/json'}
 
-    response = requests.post(url, data=json.dumps(save_this), headers=headers)
+    response = requests.post(url, data=save_this, headers=headers)
 
     return response.text
 
