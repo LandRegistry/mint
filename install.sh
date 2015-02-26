@@ -12,8 +12,11 @@ case "$DEPLOY_ENVIRONMENT" in
     development)
 		SETTINGS="config.DevelopmentConfig"
 		;;
-    test)
-		SETTINGS="config.TestConfig"
+    preview)
+		SETTINGS="config.PreviewConfig"
+		;;
+    preproduction)
+		SETTINGS="config.PreProductionConfig"
 		;;
     production)
 		SETTINGS="config.ProductionConfig"
