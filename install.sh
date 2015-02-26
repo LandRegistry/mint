@@ -4,7 +4,7 @@ dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $dir
 
 virtualenv -p python2 ~/venvs/mint
-source ~/venv/mint/bin/activate
+source ~/venvs/mint/bin/activate
 pip install -r requirements.txt
 
 #Set environment variable in supervisord according to deploying environment (default to development)
