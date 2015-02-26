@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 source ./environment-test.sh
-py.test --junitxml=results.xml --cov application tests
+py.test --junitxml=TEST-mint.xml --cov application tests
