@@ -3,8 +3,8 @@
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $dir
 
-virtualenv -p python2 env
-source env/bin/activate
+virtualenv -p python2 ~/venvs/mint
+source ~/venv/mint/bin/activate
 pip install -r requirements.txt
 
 #Set environment variable in supervisord according to deploying environment (default to development)
@@ -26,7 +26,7 @@ esac
 echo "Adding mint to supervisord..."
 cat > /etc/supervisord.d/mint.ini << EOF
 [program:mint]
-command=$dir/env/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app
+command=$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app
 directory=$dir
 autostart=true
 autorestart=true
