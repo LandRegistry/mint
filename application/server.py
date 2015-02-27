@@ -61,7 +61,7 @@ def insert_new_title_version():
 
     response = requests.post(url, data=save_this, headers=headers)
 
-    return response.text
+    return response.text, 201
 
 
 def return_signed_data(data):
