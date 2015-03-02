@@ -29,6 +29,10 @@ cd /vagrant
 ```
 
 ```
+source ~/venvs/system-of-record/bin/activate
+```
+
+```
 ./run.sh -d
 ```
 
