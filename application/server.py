@@ -1,24 +1,28 @@
 from flask import Flask, request
-import requests
 from Crypto.PublicKey import RSA
+from setup_logging import setup_logging
+from requests.exceptions import ConnectionError
+import traceback
+import requests
 import os
 import json
 import jws
 
+setup_logging()
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('SETTINGS'))
 
-
 @app.route("/")
 def check_status():
+    app.logger.info("Everything is OK")
     return "Everything is OK"
-
 
 @app.route("/sign", methods=["POST"])
 def new_title_version():
     title = json.dumps(request.get_json())
     signed_title = return_signed_data(title)
+    app.logger.info("Signing title")
     return str(signed_title)
 
 
@@ -40,6 +44,8 @@ def verify_title_version():
     header = { 'alg': 'RS256' }
     the_result = jws.verify(header, title, signature, key)
 
+    app.logger.info("Verifying title")
+
     if the_result:
         return "verified"
     else:
@@ -59,7 +65,18 @@ def insert_new_title_version():
 
     headers = {'Content-Type': 'application/json'}
 
-    response = requests.post(url, data=save_this, headers=headers)
+    app.logger.info("Signing title and sending it to system of record")
+
+    try:
+        response = requests.post(url, data=save_this, headers=headers)
+    except ConnectionError, err:
+        error_message = "unable to connect to system of record: " + str(err)
+        app.logger.error(error_message)
+        app.logger.error(traceback.format_exc())
+        return error_message, 500
+
+
+
 
     return response.text, 201
 

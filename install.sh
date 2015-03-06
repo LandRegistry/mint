@@ -11,25 +11,30 @@ pip install -r requirements.txt
 case "$DEPLOY_ENVIRONMENT" in
     development)
 		SETTINGS="config.DevelopmentConfig"
+    COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
     preview)
 		SETTINGS="config.PreviewConfig"
+    COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
     preproduction)
 		SETTINGS="config.PreProductionConfig"
+    COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     production)
 		SETTINGS="config.ProductionConfig"
+    COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     *)
 		SETTINGS="config.DevelopmentConfig"
+    COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
 esac
 
 echo "Adding mint to supervisord..."
 cat > /etc/supervisord.d/mint.ini << EOF
 [program:mint]
-command=$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app
+command=$COMMAND
 directory=$dir
 autostart=true
 autorestart=true
