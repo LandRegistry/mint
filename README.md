@@ -9,7 +9,7 @@ Currently this service can:
 NB: currently it is doing this with test public and private keys held within the test_keys folder.
 
 ##dependencies:
-- python 2 (needed for the encryption modules)
+- Python 2 (needed for the encryption modules)
 - contents of the requirements.txt
 
 The run.sh script will use VirtualEnv and VirtualEnvWrapper if it finds it.
