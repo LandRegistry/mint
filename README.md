@@ -2,7 +2,7 @@
 Beta version of the mint
 
 Currently this service can:
-- Sign data.
+- Sign data
 - Verify signed data
 - Sign and post data to the System of Record service.
 
