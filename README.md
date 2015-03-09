@@ -38,7 +38,7 @@ To the run this in production use the following command
 ./run.sh
 ```
 
-##how to run tests
+##How to run tests
 
 In virtual machine
 
