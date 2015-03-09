@@ -6,7 +6,7 @@ Currently this service can:
 - Verify signed data
 - Sign and post data to the System of Record service
 
-NB: currently it is doing this with test public and private keys held within the test_keys folder.
+NB: Currently it is doing this with test public and private keys held within the test_keys folder.
 
 ##Dependencies:
 - Python 2 (needed for the encryption modules)
