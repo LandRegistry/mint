@@ -1,5 +1,5 @@
 # Mint
-Beta version of the mint
+Beta version of the mint.
 
 Currently this service can:
 - Sign data
