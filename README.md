@@ -14,7 +14,7 @@ NB: currently it is doing this with test public and private keys held within the
 
 The run.sh script will use VirtualEnv and VirtualEnvWrapper if it finds it.
 
-##how to run in development
+##How to run in development
 
 ```
 vagrant up
