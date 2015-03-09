@@ -8,7 +8,7 @@ Currently this service can:
 
 NB: currently it is doing this with test public and private keys held within the test_keys folder.
 
-##dependencies:
+##Dependencies:
 - Python 2 (needed for the encryption modules)
 - Contents of the requirements.txt
 
