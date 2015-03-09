@@ -4,7 +4,7 @@ Beta version of the mint
 Currently this service can:
 - Sign data
 - Verify signed data
-- Sign and post data to the System of Record service.
+- Sign and post data to the System of Record service
 
 NB: currently it is doing this with test public and private keys held within the test_keys folder.
 
