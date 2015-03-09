@@ -10,7 +10,7 @@ NB: currently it is doing this with test public and private keys held within the
 
 ##dependencies:
 - Python 2 (needed for the encryption modules)
-- contents of the requirements.txt
+- Contents of the requirements.txt
 
 The run.sh script will use VirtualEnv and VirtualEnvWrapper if it finds it.
 
