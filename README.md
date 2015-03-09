@@ -49,7 +49,7 @@ The tests output a results.xml which is in junit format.
 
 ##Example curls
 
-Note:  Use 0.0.0.0 when running from host.  Use 10.0.2.2 when calling from another VM.
+Note:  Use 127.0.0.1 when running from host.  Use 10.0.2.2 when calling from another VM.
 
 To get signed data post something like this:
 
