@@ -1,4 +1,4 @@
-# mint
+# Mint
 Beta version of the mint
 
 Currently this service can:
