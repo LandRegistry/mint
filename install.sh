@@ -8,31 +8,37 @@ source ~/venvs/mint/bin/activate
 pip install -r requirements.txt
 
 #Create the logging directory as it is required by default
-mkdir $dir/logs
+if [ ! -d $dir/logs ]; then
+	mkdir $dir/logs
+fi
 
 #Set environment variable in supervisord according to deploying environment (default to development)
 case "$DEPLOY_ENVIRONMENT" in
     development)
-		SETTINGS="config.DevelopmentConfig"
-    COMMAND="$HOME/venvs/mint/bin/python run.py"
+		SUPERVISOR_ENV="SETTINGS=\"config.DevelopmentConfig\""
+		COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
     preview)
-		SETTINGS="config.PreviewConfig"
-    COMMAND="$HOME/venvs/mint/bin/python run.py"
+		SUPERVISOR_ENV="SETTINGS=\"config.PreviewConfig\""
+		COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
     preproduction)
-		SETTINGS="config.PreProductionConfig"
-    COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		SUPERVISOR_ENV="SETTINGS=\"config.PreProductionConfig\""
+		COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     production)
-		SETTINGS="config.ProductionConfig"
-    COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		SUPERVISOR_ENV="SETTINGS=\"config.ProductionConfig\""
+		COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     *)
-		SETTINGS="config.DevelopmentConfig"
-    COMMAND="$HOME/venvs/mint/bin/python run.py"
+		SUPERVISOR_ENV="SETTINGS=\"config.DevelopmentConfig\""
+		COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
 esac
+
+if [ -n "$SYSTEM_OF_RECORD" ]; then
+	SUPERVISOR_ENV="$SUPERVISOR_ENV,SYSTEM_OF_RECORD=\"$SYSTEM_OF_RECORD\""
+fi 
 
 echo "Adding mint to supervisord..."
 cat > /etc/supervisord.d/mint.ini << EOF
@@ -42,5 +48,5 @@ directory=$dir
 autostart=true
 autorestart=true
 user=$USER
-environment=SETTINGS="$SETTINGS"
+environment=$SUPERVISOR_ENV
 EOF
