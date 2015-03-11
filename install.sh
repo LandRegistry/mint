@@ -8,7 +8,9 @@ source ~/venvs/mint/bin/activate
 pip install -r requirements.txt
 
 #Create the logging directory as it is required by default
-mkdir $dir/logs
+if [ ! -d $dir/logs ]; then
+	mkdir $dir/logs
+fi
 
 #Set environment variable in supervisord according to deploying environment (default to development)
 case "$DEPLOY_ENVIRONMENT" in
