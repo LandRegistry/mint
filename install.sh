@@ -36,6 +36,7 @@ esac
 
 if [ -n "$SYSTEM_OF_RECORD" ]; then
 	SUPERVISOR_ENV="$SUPERVISOR_ENV,SYSTEM_OF_RECORD=\"$SYSTEM_OF_RECORD\""
+fi 
 
 echo "Adding mint to supervisord..."
 cat > /etc/supervisord.d/mint.ini << EOF
