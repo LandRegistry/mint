@@ -62,6 +62,8 @@ def verify_title_version():
         signature_error = 'Could not validate signature'
         app.logger.info(signature_error)
         return signature_error, 200
+    except MintUserException as err:
+        return str(err), 500
     except Exception as err:
         unknown_error = 'unknown error in application.server.verify_title_version'
         log_error(err, unknown_error)
@@ -92,11 +94,14 @@ def insert_new_title_version():
         response = requests.post(url, data=save_this, headers=headers)
 
     except HTTPException as err:
+        log_error(err, '')
         return str(err)
     except ConnectionError as err:
         connection_error = 'Unable to connect to system of record '
         log_error(err, connection_error)
         return connection_error, 500
+    except MintUserException as err:
+        return str(err), 500
     except Exception as err:
         unknown_error = 'unknown error in application.server.insert_new_title_version'
         log_error(err, unknown_error)
@@ -111,7 +116,7 @@ def return_signed_data(data):
         header = {'alg': 'RS256'}
         sig = jws.sign(header, data, key)
     except MintUserException:
-        raise  # re-raise, don't log again.
+        raise  # re-raise key exception, don't log again.
     except Exception as err:
         signing_failed = 'Signing failed.  Check logs.'
         log_error(err, signing_failed)
