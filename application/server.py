@@ -28,7 +28,7 @@ def sign_title_version():
         signed_title = return_signed_data(title)
     except HTTPException as err:
         log_error(err, '')
-        return str(err)
+        return str(err), err.code
     except MintUserException as err:
         return str(err), 500
     except Exception as err:
@@ -57,7 +57,7 @@ def verify_title_version():
 
     except HTTPException as err:
         log_error(err, '')
-        return str(err)
+        return str(err), err.code
     except SignatureError as err:
         signature_error = 'Could not validate signature'
         app.logger.info(signature_error)
@@ -65,7 +65,7 @@ def verify_title_version():
     except MintUserException as err:
         return str(err), 500
     except Exception as err:
-        unknown_error = 'unknown error in application.server.verify_title_version'
+        unknown_error = 'unknown error in application.server.verify_title_version '
         log_error(err, unknown_error)
         return unknown_error, 500
     else:
@@ -95,7 +95,7 @@ def insert_new_title_version():
 
     except HTTPException as err:
         log_error(err, '')
-        return str(err)
+        return str(err), err.code
     except ConnectionError as err:
         connection_error = 'Unable to connect to system of record '
         log_error(err, connection_error)
@@ -103,7 +103,7 @@ def insert_new_title_version():
     except MintUserException as err:
         return str(err), 500
     except Exception as err:
-        unknown_error = 'unknown error in application.server.insert_new_title_version'
+        unknown_error = 'unknown error in application.server.insert_new_title_version '
         log_error(err, unknown_error)
         return unknown_error, 500
     else:
@@ -130,16 +130,16 @@ def build_system_of_record_json_string(original_data_dict, signed_data_string):
         system_of_record_dict = {"data": original_data_dict, "sig":signed_data_string}
         system_of_record_json = json.dumps(system_of_record_dict)
     except Exception as err:
-        signing_failed = 'Formatting data failed.  Check logs.'
-        log_error(err, signing_failed)
-        raise MintUserException(signing_failed)
+        formatting_failed = 'Formatting data failed.  Check logs.'
+        log_error(err, formatting_failed)
+        raise MintUserException(formatting_failed)
     else:
         return system_of_record_json
 
 
-def get_key():
+def get_key(key_path='test_keys/test_private.pem'):
     try:
-        key_data = open('test_keys/test_private.pem').read()
+        key_data = open(key_path).read()
         key = RSA.importKey(key_data)
     except IOError as err:
         no_key = "Cannot find signing key. Check logs"
@@ -156,6 +156,7 @@ def log_error(an_error, error_message):
     log_message = error_message + str(an_error)
     app.logger.error(log_message)
     app.logger.error(traceback.format_exc())
+    return True
 
 class MintUserException(Exception):
     pass
