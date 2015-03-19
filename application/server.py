@@ -107,7 +107,7 @@ def insert_new_title_version():
         log_error(err, unknown_error)
         return unknown_error, 500
     else:
-        return response.text, 201
+        return response.text, response.status_code
 
 
 def return_signed_data(data):
