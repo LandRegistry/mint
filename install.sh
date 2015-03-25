@@ -24,11 +24,11 @@ case "$DEPLOY_ENVIRONMENT" in
 		;;
     preproduction)
 		SUPERVISOR_ENV="SETTINGS=\"config.PreProductionConfig\""
-		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 8 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 16 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     production)
 		SUPERVISOR_ENV="SETTINGS=\"config.ProductionConfig\""
-		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 8 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 16 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     *)
 		SUPERVISOR_ENV="SETTINGS=\"config.DevelopmentConfig\""
