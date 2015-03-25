@@ -24,11 +24,11 @@ case "$DEPLOY_ENVIRONMENT" in
 		;;
     preproduction)
 		SUPERVISOR_ENV="SETTINGS=\"config.PreProductionConfig\""
-		COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 8 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     production)
 		SUPERVISOR_ENV="SETTINGS=\"config.ProductionConfig\""
-		COMMAND="$HOME/venvs/mint/bin/gunicorn --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
+		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 8 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
 		;;
     *)
 		SUPERVISOR_ENV="SETTINGS=\"config.DevelopmentConfig\""
@@ -38,7 +38,7 @@ esac
 
 if [ -n "$SYSTEM_OF_RECORD" ]; then
 	SUPERVISOR_ENV="$SUPERVISOR_ENV,SYSTEM_OF_RECORD=\"$SYSTEM_OF_RECORD\""
-fi 
+fi
 
 echo "Adding mint to supervisord..."
 cat > /etc/supervisord.d/mint.ini << EOF
