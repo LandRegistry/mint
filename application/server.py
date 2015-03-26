@@ -12,6 +12,9 @@ from jws.algos import SignatureError
 from python_logging.setup_logging import setup_logging
 from python_logging.logging_utils import linux_user, client_ip, log_dir
 
+INFO_LOG_FILENAME='debug'
+ERROR_LOG_FILENAME='error'
+
 
 @app.route("/")
 def check_status():
@@ -32,11 +35,11 @@ def sign_title_version():
         return str(err), 500
     except Exception as err:
         unknown_error = 'unknown error signing title '
-        log_error(make_log_msg(unknown_error, request, 'error', get_title_number(request)))
+        log_error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
         return unknown_error, 500
     else:
-        #audit
-        app.logger.info(make_log_msg("Completed signing title. ", request, 'info', get_title_number(request)))
+        app.logger.info(
+            make_log_msg("AUDIT: Completed signing title. ", request, INFO_LOG_FILENAME, get_title_number(request)))
         return str(signed_title), 200
 
 
@@ -68,12 +71,12 @@ def verify_title_version():
         return str(err), 500
     except Exception as err:
         unknown_error = 'unknown error in application.server.verify_title_version '
-        log_error(make_log_msg(unknown_error, request, 'error', get_title_number(request)))
+        log_error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
         return unknown_error, 500
     else:
         if the_result:
-            #audit
-            app.logger.info(make_log_msg("Verified signed title. ", request, 'info', get_title_number(request)))
+            app.logger.info(
+                make_log_msg("AUDIT: Verified signed title. ", request, INFO_LOG_FILENAME, get_title_number(request)))
             return "verified", 200
         else:
             pass  # aws will raise a SignatureError
@@ -93,9 +96,9 @@ def insert_new_title_version():
 
         headers = {'Content-Type': 'application/json'}
 
-        #audit
         app.logger.info(
-            make_log_msg("Signed title and sending to system of record. ", request, 'info', get_title_number(request)))
+            make_log_msg("AUDIT: Signed title and sending to system of record. ", request, INFO_LOG_FILENAME,
+                         get_title_number(request)))
 
         response = requests.post(url, data=save_this, headers=headers)
 
@@ -105,14 +108,14 @@ def insert_new_title_version():
         return http_exception, err.code
     except ConnectionError as err:
         connection_error = 'Unable to connect to system of record '
-        log_error(make_log_msg(connection_error, request, 'error', get_title_number(request)))
+        log_error(make_log_msg(connection_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
         return connection_error, 500
     except MintUserException as err:
         log_error(make_log_msg(str(err), request, get_title_number(request)))
         return str(err), 500
     except Exception as err:
         unknown_error = 'unknown error in application.server.insert_new_title_version '
-        log_error(make_log_msg(unknown_error, request, 'error', get_title_number(request)))
+        log_error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
         return unknown_error, 500
     else:
         return response.text, response.status_code
@@ -181,5 +184,5 @@ def get_title_number(request):
         return request.get_json()['title_number']
     except Exception as err:
         error_message = "title number not found. Check JSON format: "
-        app.logger.error(make_log_msg(error_message, request, 'error', request.get_json()))
+        app.logger.error(make_log_msg(error_message, request, ERROR_LOG_FILENAME, request.get_json()))
         return error_message + str(err)
