@@ -54,17 +54,17 @@ Note:  Use 127.0.0.1 when running from host.  Use 10.0.2.2 when calling from ano
 To get signed data post something like this:
 
 ```
-curl -X POST -d '{"titleno" : "DN1"}' -H "Content-Type: application/json" http://10.0.2.2:5000/sign
+curl -X POST -d '{"title_number" : "DN1"}' -H "Content-Type: application/json" http://10.0.2.2:5000/sign
 ```
 
 To verify signed data post something like this:
 
 ```
-curl -X POST -d '{"sig" : "b6vjrGcLzq97_2D5h286TkRu_Kf0GonPDsndkGjhtrTBlHKIcF5H18hu635VEork_kr811ZS7B-4FuaCQFk6CvIQpNhxaMxI7m56HRQnj8ZsRSkX74xEKQUqf3k26ZdkODWJVsKyd_grJ39tfwMvJJb9V5REpRa8qXGr1eXgK4gEqwmo2fkow_W8q_yqMTTm9jOuVeFaqCQzAJBFUEWgkuTLRd91Wm8MlF4RhG_w1YktGzVath3tvaiTXNfiyfZbzPu9viotpP81gsFpWw6xocrUDbKhhXw2rm0BU2NvqSMXJ3X1qZs-VZibnWRJNNyt3sFapDojlDs99cL_uQ2aBQ", "data":{"titleno" : "DN1"}}' -H "Content-Type: application/json" http://10.0.2.2:5000/verify
+curl -X POST -d '{"sig" : "xGM837iKCZDNUX2031XlPDKLsQ8y6uFs2_1DXqjATUjkAbWS5WFq2hR6MnWDgXC95rjg8h5lmKSUV-8c0W8WSaVaRfjEBz5vFOY3HtU0gXggXSYfLlKoEYT-c4BfySVwxWk1wSuE1F3tHJshJ4Dzx85brJJ6UePE2ZG8oczbBEQxhh09MDtaskNbtmpN8Pd43Ct7SJhHJqHbNT812mZjmoMqp9WJln0N0MDSh0_2Oc-cttJkIToW2AvniiTeK9TMEXo7xRPdkObYuG8gYEWlyKT981gnFz3TgKJJyMjQZTmrUCzcEEb4pMzKoc9jqiivJLD900KgoiC8MtcgNX7Kmw", "data":{"title_number" : "DN1"}}' -H "Content-Type: application/json" http://10.0.2.2:5000/verify
 ```
 
 To sign and store something on system of record:
 
 ```
-curl -X POST -d '{"titleno" : "DN1"}' -H "Content-Type: application/json" http://10.0.2.2:5000/insert
+curl -X POST -d '{"title_number" : "DN1"}' -H "Content-Type: application/json" http://10.0.2.2:5000/insert
 ```
