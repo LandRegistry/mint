@@ -9,11 +9,14 @@ import json
 import jws
 from werkzeug.exceptions import HTTPException
 from jws.algos import SignatureError
+from python_logging.setup_logging import setup_logging
+from python_logging.logging_utils import linux_user, client_ip, log_dir
 
-setup_logging()
+
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('SETTINGS'))
+setup_logging()
 
 @app.route("/")
 def check_status():
@@ -160,4 +163,24 @@ def log_error(an_error, error_message):
 
 class MintUserException(Exception):
     pass
+
+
+def make_log_msg(message, request, log_level, title_number):
+    #Constructs the message to submit to audit.
+    msg = message + 'Client ip address is: %s. ' % client_ip(request)
+    msg = msg + 'Signed in as: %s. ' % linux_user()
+    msg = msg + 'Title number is: %s. ' % title_number
+    msg = msg + 'Logged at: system-of-record/%s. ' % log_dir(log_level)
+    return msg
+
+
+def get_title_number(request):
+    #gets the title number from minted json
+    try:
+        return request.get_json()['data']['title_number']
+    except Exception as err:
+        error_message = "title number not found. Check JSON format: "
+        app.logger.error(make_log_msg(error_message, request, 'error', request.get_json()))
+        return error_message + str(err)
+
 
