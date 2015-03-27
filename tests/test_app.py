@@ -1,3 +1,4 @@
+from flask import request
 import unittest
 from application import server
 from application.server import app
@@ -5,10 +6,10 @@ from application.server import build_system_of_record_json_string
 from application.server import return_signed_data
 from application.server import MintUserException
 from application.server import get_key
-from application.server import log_error
 import os
-
+import time
 import mock
+from python_logging.logging_utils import log_dir
 
 TEST_TITLE = '{"title_number": "DN1"}'
 BAD_JSON = {"bad_json"}
@@ -38,7 +39,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_build_system_of_record_json_string_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             build_system_of_record_json_string(BAD_JSON, BAD_JSON)
-        self.assertTrue('Formatting data failed.  Check logs.' in context.exception)
+        self.assertTrue('. Formatting data failed.  Check logs. ' in context.exception)
 
     def test_return_signed_data(self):
         signed_string = return_signed_data(TEST_TITLE)
@@ -50,7 +51,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_return_signed_data_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return_signed_data(BAD_JSON)
-        self.assertTrue('Signing failed.  Check logs.' in context.exception)
+        self.assertTrue('. Signing failed.  Check logs. ' in context.exception)
 
     def test_get_key(self):
         self.assertTrue(get_key() is not None)
@@ -61,14 +62,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_get_key_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return get_key('bad file path')
-        self.assertTrue('Cannot find signing key. Check logs' in context.exception)
-
-    def test_logs_error(self):
-        #Force an error and check it logs
-        with self.assertRaises(MintUserException) as context:
-            return get_key('bad file path')
-        # log_errors returns true
-        self.assertTrue(log_error('test message'))
+        self.assertTrue('. Cannot find signing key. Check logs. ' in context.exception)
 
 
     def test_sign_route(self):
@@ -92,7 +86,16 @@ class TestSequenceFunctions(unittest.TestCase):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/verify', data=VERIFY_AMENDED_DATA, headers=headers)
         self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.data, "Could not validate signature")
+        self.assertEqual(response.data, ". Could not validate signature. ")
+
+    @mock.patch('requests.post')
+    @mock.patch('requests.Response')
+    def test_insert_route(self, mock_response, mock_post):
+        mock_response.text = "row inserted"
+        mock_post.return_value = mock_response
+        headers = {'content-Type': 'application/json'}
+        response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
+        self.assertEqual(response.data, "row inserted")
 
     def test_verify_route_unknown_exception(self):
     #An incorrect key causes an unknown exception.  If the key is invalid
@@ -107,17 +110,42 @@ class TestSequenceFunctions(unittest.TestCase):
         response = self.app.post('/verify', data='', headers=headers)
         self.assertEqual(response.status, '400 BAD REQUEST')
 
-    @mock.patch('requests.post')
-    @mock.patch('requests.Response')
-    def test_insert_route(self, mock_response, mock_post):
-        mock_response.text = "row inserted"
-        mock_post.return_value = mock_response
-        headers = {'content-Type': 'application/json'}
-        response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, "row inserted")
-
     def test_insert_route_400(self):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data='', headers=headers)
         self.assertEqual(response.status, '400 BAD REQUEST')
+
+
+    def test_logging_writes_to_debug_log(self):
+        test_timestamp = time.time()
+        app.logger.debug(test_timestamp)
+        log_directory = log_dir('debug')
+        f = open(log_directory, 'r')
+        file_content = f.read()
+        self.assertTrue(str(test_timestamp) in file_content)
+
+
+    def test_logging_writes_to_error_log(self):
+        test_timestamp = time.time()
+        app.logger.error(test_timestamp)
+        log_directory = log_dir('error')
+        f = open(log_directory, 'r')
+        file_content = f.read()
+        self.assertTrue(str(test_timestamp) in file_content)
+
+
+    def test_info_logging_writes_to_debug_log(self):
+        test_timestamp = time.time()
+        app.logger.info(test_timestamp)
+        log_directory = log_dir('debug')
+        f = open(log_directory, 'r')
+        file_content = f.read()
+        self.assertTrue(str(test_timestamp) in file_content)
+
+
+
+
+
+
+
 
