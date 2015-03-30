@@ -128,6 +128,9 @@ def insert_new_title_version():
         app.logger.error(traceback.format_exc())
         return unknown_error, 500
     else:
+        app.logger.info(
+            make_log_msg(". AUDIT: System of record responded with: %s, status code: %s. " % (
+                response.text, response.status_code), request, INFO_LOG_FILENAME, get_title_number(request)))
         return response.text, response.status_code
 
 
