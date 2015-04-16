@@ -84,8 +84,7 @@ def verify_title_version():
             app.logger.info(
                 make_log_msg(". AUDIT: Verified signed title. ", request, INFO_LOG_FILENAME, get_title_number(request)))
             return "verified", 200
-        else:
-            pass  # aws will raise a SignatureError
+        #otherwise aws will raise a SignatureError
 
 
 @app.route("/insert", methods=["POST"])
