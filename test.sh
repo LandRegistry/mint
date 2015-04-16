@@ -6,4 +6,4 @@ cd $dir
 source ~/venvs/mint/bin/activate
 
 source ./environment-test.sh
-py.test --junitxml=TEST-mint.xml --cov application tests
+py.test --junitxml=TEST-mint.xml --cov-report term-missing --cov application tests
