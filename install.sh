@@ -22,6 +22,10 @@ case "$DEPLOY_ENVIRONMENT" in
 		SUPERVISOR_ENV="SETTINGS=\"config.PreviewConfig\""
 		COMMAND="$HOME/venvs/mint/bin/python run.py"
 		;;
+	release)
+		SUPERVISOR_ENV="SETTINGS=\"config.ReleaseConfig\""
+		COMMAND="$HOME/venvs/mint/bin/python run.py"
+		;;
     preproduction)
 		SUPERVISOR_ENV="SETTINGS=\"config.PreProductionConfig\""
 		COMMAND="$HOME/venvs/mint/bin/gunicorn -w 16 --log-file=- --log-level DEBUG -b 0.0.0.0:5000 --timeout 120 application.server:app"
