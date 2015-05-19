@@ -2,6 +2,10 @@
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $dir
+
+#Re-link venv to python in case anything's different
+find ~/venvs/mint -type l -delete
+virtualenv -p python2 ~/venvs/mint
 source ~/venvs/mint/bin/activate
 
 #Set environment variable in supervisord according to deploying environment (default to development)
