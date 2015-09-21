@@ -32,7 +32,7 @@ def sign_title_version():
         app.logger.error(traceback.format_exc())
         return http_exception, err.code
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, get_title_number(request)))
+        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
         app.logger.error(traceback.format_exc())
         return str(err), 500
     except Exception as err:
@@ -71,7 +71,7 @@ def verify_title_version():
         app.logger.info(signature_error)
         return signature_error, 200
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, get_title_number(request)))
+        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
         app.logger.error(traceback.format_exc())
         return str(err), 500
     except Exception as err:
@@ -118,7 +118,7 @@ def insert_new_title_version():
         app.logger.error(traceback.format_exc())
         return connection_error, 500
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, get_title_number(request)))
+        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
         app.logger.error(traceback.format_exc())
         return str(err), 500
     except Exception as err:
