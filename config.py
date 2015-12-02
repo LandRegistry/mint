@@ -25,3 +25,6 @@ class OatConfig(Config):
 
 class ProductionConfig(Config):
     SYSTEM_OF_RECORD = os.getenv('SYSTEM_OF_RECORD', 'http://127.0.0.1:5001')
+
+class NewAConfig(Config):
+    SYSTEM_OF_RECORD = os.getenv('SYSTEM_OF_RECORD', 'http://127.0.0.1:5001')
