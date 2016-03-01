@@ -62,4 +62,7 @@ autorestart=true
 user=$USER
 environment=$SUPERVISOR_ENV
 stopasgroup=true
+stdout_logfile=/var/log/supervisor/mint.log
+redirect_stderr=true
+stderr_logfile=
 EOF

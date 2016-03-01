@@ -5,20 +5,23 @@ from requests.exceptions import ConnectionError
 import traceback
 import requests
 import os
+import pwd
 import json
 import jws
 from werkzeug.exceptions import HTTPException
 from jws.algos import SignatureError
-from python_logging.setup_logging import setup_logging
-from python_logging.logging_utils import linux_user, client_ip, log_dir
+import datetime
+import logging
+import sys
+import pwd
 
-INFO_LOG_FILENAME='debug'
-ERROR_LOG_FILENAME='error'
+
+logging.basicConfig(format='%(levelname)s %(asctime)s [Mint] Message: %(message)s', level=logging.INFO, datefmt='%d.%m.%y %I:%M:%S %p')
 
 
 @app.route("/")
 def check_status():
-    app.logger.info("Everything is OK")
+    logging.info("Mint status check OK")
     return "Everything is OK"
 
 @app.route("/sign", methods=["POST"])
@@ -27,22 +30,19 @@ def sign_title_version():
         title = json.dumps(request.get_json())
         signed_title = return_signed_data(title)
     except HTTPException as err:
-        http_exception = '. HTTP exception occurred. '
-        app.logger.error(http_exception)
-        app.logger.error(traceback.format_exc())
-        return http_exception, err.code
+        logging.error('HTTP exception occurred.')
+        logging.error( traceback.format_exc() )
+        return 'HTTP exception occurred.', err.code
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
+        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        unknown_error = '. unknown error signing title. '
-        app.logger.error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
-        return unknown_error, 500
+        logging.error( make_log_msg( 'Unknown error signing title.', get_title_number(request) ) )
+        logging.error( traceback.format_exc )
+        return 'Unknown error signing title.', 500
     else:
-        app.logger.info(
-            make_log_msg(". AUDIT: Completed signing title. ", request, INFO_LOG_FILENAME, get_title_number(request)))
+        logging.info( make_log_msg( 'Completed signing title.', get_title_number(request) ) )
         return str(signed_title), 200
 
 
@@ -62,27 +62,23 @@ def verify_title_version():
         the_result = jws.verify(header, title, signature, key)
 
     except HTTPException as err:
-        http_exception = '. HTTP exception occurred. '
-        app.logger.error(http_exception)
-        app.logger.error(traceback.format_exc())
-        return http_exception, err.code
+        logging.error('HTTP exception occurred.')
+        logging.error( traceback.format_exc() )
+        return 'HTTP exception occurred.', err.code
     except SignatureError as err:
-        signature_error = '. Could not validate signature. '
-        app.logger.info(signature_error)
-        return signature_error, 200
+        logging.error('Could not validate signature.')
+        return 'Could not validate signature.', 200
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
+        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        unknown_error = '. unknown error in application.server.verify_title_version. '
-        app.logger.error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
-        return unknown_error, 500
+        logging.error( make_log_msg( 'Unknown error in application.server.verify_title_version.', get_title_number(request) ) )
+        logging.error( traceback.format_exc )
+        return 'Unknown error in application.server.verify_title_version.', 500
     else:
         if the_result:
-            app.logger.info(
-                make_log_msg(". AUDIT: Verified signed title. ", request, INFO_LOG_FILENAME, get_title_number(request)))
+            logging.info( make_log_msg( 'Verified signed title.', get_title_number(request) ) )
             return "verified", 200
         #otherwise aws will raise a SignatureError
 
@@ -101,35 +97,28 @@ def insert_new_title_version():
 
         headers = {'Content-Type': 'application/json'}
 
-        app.logger.info(
-            make_log_msg(". AUDIT: Signed title and sending to system of record. ", request, INFO_LOG_FILENAME,
-                         get_title_number(request)))
+        logging.info( make_log_msg( 'Signed and sending to system of record.', get_title_number(request) ) )
 
         response = requests.post(url, data=save_this, headers=headers)
 
     except HTTPException as err:
-        http_exception = '.HTTP exception occurred. '
-        app.logger.error(http_exception)
-        app.logger.error(traceback.format_exc())
-        return http_exception, err.code
+        logging.error('HTTP exception occurred.')
+        logging.error( traceback.format_exc() )
+        return 'HTTP exception occurred.', err.code
     except ConnectionError as err:
-        connection_error = '. Unable to connect to system of record. '
-        app.logger.error(make_log_msg(connection_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
-        return connection_error, 500
+        logging.error('Unable to connect to system of record.')
+        logging.error( traceback.format_exc() )
+        return 'Unable to connect to system of record.', 500
     except MintUserException as err:
-        app.logger.error(make_log_msg(str(err), request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
+        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        unknown_error = '. unknown error in application.server.insert_new_title_version. '
-        app.logger.error(make_log_msg(unknown_error, request, ERROR_LOG_FILENAME, get_title_number(request)))
-        app.logger.error(traceback.format_exc())
-        return unknown_error, 500
+        logging.error( make_log_msg( 'Unknown error in application.server.insert_new_title_version.', get_title_number(request) ) )
+        logging.error( traceback.format_exc )
+        return 'Unknown error in application.server.insert_new_title_version.', 500
     else:
-        app.logger.info(
-            make_log_msg(". AUDIT: System of record responded with: %s, status code: %s. " % (
-                response.text, response.status_code), request, INFO_LOG_FILENAME, get_title_number(request)))
+        logging.info( make_log_msg( "{}Status Code: {}".format(response.text, response.status_code), get_title_number(request) ) )
         return response.text, response.status_code
 
 
@@ -141,7 +130,7 @@ def return_signed_data(data):
     except MintUserException:
         raise  # re-raise key exception, don't log again.
     except Exception as err:
-        signing_failed = '. Signing failed.  Check logs. '
+        signing_failed = 'Signing failed.  Check logs.'
         raise MintUserException(signing_failed)
     else:
         return str(sig)
@@ -152,7 +141,7 @@ def build_system_of_record_json_string(original_data_dict, signed_data_string):
         system_of_record_dict = {"data": original_data_dict, "sig":signed_data_string}
         system_of_record_json = json.dumps(system_of_record_dict)
     except Exception as err:
-        formatting_failed = '. Formatting data failed.  Check logs. '
+        formatting_failed = 'Formatting data failed.  Check logs.'
         raise MintUserException(formatting_failed)
     else:
         return system_of_record_json
@@ -163,7 +152,7 @@ def get_key(key_path='test_keys/test_private.pem'):
         key_data = open(key_path).read()
         key = RSA.importKey(key_data)
     except IOError as err:
-        no_key = ". Cannot find signing key. Check logs. "
+        no_key = 'Cannot find signing key. Check logs.'
         raise MintUserException(no_key)
     else:
         return key
@@ -173,13 +162,21 @@ class MintUserException(Exception):
     pass
 
 
-def make_log_msg(message, request, log_level, title_number):
-    #Constructs the message to submit to audit.
-    msg = message + 'Client ip address is: %s. ' % client_ip(request)
-    msg = msg + 'Signed in as: %s. ' % linux_user()
-    msg = msg + 'Title number is: %s. ' % title_number
-    msg = msg + 'Logged at: mint/%s. ' % log_dir(log_level)
-    return msg
+def make_log_msg(message, title_number=''):
+    #     if app.config['ENABLE_AUTH'] is False:
+    #     return 'Raised by: test, Message: ' + message
+    # else:
+    if title_number == '':
+        return 'Raised by: ' + linux_user() + ', Message: ' + message
+    else:
+        return 'Raised by: ' + linux_user() + ', Title Number: ' + title_number + ', Message: ' + message
+
+
+def linux_user():
+    try:
+        return pwd.getpwuid(os.geteuid()).pw_name
+    except Exception as err:
+        return "failed to get user: %s" % err
 
 
 def get_title_number(request):
@@ -191,6 +188,5 @@ def get_title_number(request):
             return request.get_json()['data']['title_number']
 
     except Exception as err:
-        error_message = ". title number not found. Check JSON format: "
-        app.logger.error(make_log_msg(error_message, request, ERROR_LOG_FILENAME, request.get_json()))
+        logging.error( 'Title number not found. Check JSON format:', request.get_json() )
         return error_message + str(err)

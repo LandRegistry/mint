@@ -10,7 +10,6 @@ from application.server import get_key
 import os
 import time
 import mock
-from python_logging.logging_utils import log_dir
 from requests.exceptions import ConnectionError
 
 TEST_TITLE = '{"title_number": "DN1"}'
@@ -42,7 +41,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_build_system_of_record_json_string_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             build_system_of_record_json_string(BAD_JSON, BAD_JSON)
-        self.assertTrue('. Formatting data failed.  Check logs. ' in context.exception)
+        self.assertTrue('Formatting data failed.  Check logs.' in context.exception)
 
     def test_return_signed_data(self):
         signed_string = return_signed_data(TEST_TITLE)
@@ -54,7 +53,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_return_signed_data_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return_signed_data(BAD_JSON)
-        self.assertTrue('. Signing failed.  Check logs. ' in context.exception)
+        self.assertTrue('Signing failed.  Check logs.' in context.exception)
 
     @mock.patch('application.server.get_key')
     def test_returned_signed_data_reraised_mint_user_exception(self, mock_return):
@@ -72,7 +71,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_get_key_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return get_key('bad file path')
-        self.assertTrue('. Cannot find signing key. Check logs. ' in context.exception)
+        self.assertTrue('Cannot find signing key. Check logs.' in context.exception)
 
 
     def test_sign_route(self):
@@ -103,7 +102,7 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/sign', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, '. unknown error signing title. ')
+        self.assertEqual(response.data, 'Unknown error signing title.')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
 
 
@@ -117,7 +116,7 @@ class TestSequenceFunctions(unittest.TestCase):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/verify', data=VERIFY_AMENDED_DATA, headers=headers)
         self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.data, ". Could not validate signature. ")
+        self.assertEqual(response.data, "Could not validate signature.")
 
     @mock.patch('requests.post')
     @mock.patch('requests.Response')
@@ -134,7 +133,7 @@ class TestSequenceFunctions(unittest.TestCase):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/verify', data=VERIFY_DATA_AMENDED_KEY, headers=headers)
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
-        self.assertTrue("unknown error in application.server.verify_title_version" in response.data)
+        self.assertTrue("Unknown error in application.server.verify_title_version" in response.data)
 
     def test_verify_route_400(self):
         headers = {'content-Type': 'application/json'}
@@ -173,7 +172,7 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, '. unknown error in application.server.insert_new_title_version. ')
+        self.assertEqual(response.data, 'Unknown error in application.server.insert_new_title_version.')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
 
     @mock.patch('application.server.return_signed_data')
@@ -183,37 +182,8 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, '. Unable to connect to system of record. ')
+        self.assertEqual(response.data, 'Unable to connect to system of record.')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
-
-
-
-    def test_logging_writes_to_debug_log(self):
-        test_timestamp = time.time()
-        app.logger.debug(test_timestamp)
-        log_directory = log_dir('debug')
-        f = open(log_directory, 'r')
-        file_content = f.read()
-        self.assertTrue(str(test_timestamp) in file_content)
-
-
-    def test_logging_writes_to_error_log(self):
-        test_timestamp = time.time()
-        app.logger.error(test_timestamp)
-        log_directory = log_dir('error')
-        f = open(log_directory, 'r')
-        file_content = f.read()
-        self.assertTrue(str(test_timestamp) in file_content)
-
-
-    def test_info_logging_writes_to_debug_log(self):
-        test_timestamp = time.time()
-        app.logger.info(test_timestamp)
-        log_directory = log_dir('debug')
-        f = open(log_directory, 'r')
-        file_content = f.read()
-        self.assertTrue(str(test_timestamp) in file_content)
-
 
     def create_mint_exception(self, *args):
         raise MintUserException(MINT_EXCEPTION_MESSAGE)
