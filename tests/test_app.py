@@ -7,6 +7,7 @@ from application.server import return_signed_data
 from application.server import MintUserException
 from application.server import get_title_number
 from application.server import get_key
+from application.server import make_log_msg
 import os
 import time
 import mock
@@ -41,7 +42,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_build_system_of_record_json_string_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             build_system_of_record_json_string(BAD_JSON, BAD_JSON)
-        self.assertTrue('Formatting data failed.  Check logs.' in context.exception)
+        self.assertTrue('Formatting data failed.  Check logs' in context.exception)
 
     def test_return_signed_data(self):
         signed_string = return_signed_data(TEST_TITLE)
@@ -53,7 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_return_signed_data_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return_signed_data(BAD_JSON)
-        self.assertTrue('Signing failed.  Check logs.' in context.exception)
+        self.assertTrue('Signing failed.  Check logs' in context.exception)
 
     @mock.patch('application.server.get_key')
     def test_returned_signed_data_reraised_mint_user_exception(self, mock_return):
@@ -71,7 +72,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_get_key_exception_message(self):
         with self.assertRaises(MintUserException) as context:
             return get_key('bad file path')
-        self.assertTrue('Cannot find signing key. Check logs.' in context.exception)
+        self.assertTrue('Cannot find signing key. Check logs' in context.exception)
 
 
     def test_sign_route(self):
@@ -102,7 +103,7 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/sign', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, 'Unknown error signing title.')
+        self.assertEqual(response.data, 'Unknown error signing title')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
 
 
@@ -116,7 +117,7 @@ class TestSequenceFunctions(unittest.TestCase):
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/verify', data=VERIFY_AMENDED_DATA, headers=headers)
         self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.data, "Could not validate signature.")
+        self.assertEqual(response.data, "Could not validate signature")
 
     @mock.patch('requests.post')
     @mock.patch('requests.Response')
@@ -172,7 +173,7 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, 'Unknown error in application.server.insert_new_title_version.')
+        self.assertEqual(response.data, 'Unknown error in application.server.insert_new_title_version')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
 
     @mock.patch('application.server.return_signed_data')
@@ -182,7 +183,7 @@ class TestSequenceFunctions(unittest.TestCase):
         mock_make_msg.side_effect = 'z'
         headers = {'content-Type': 'application/json'}
         response = self.app.post('/insert', data=TEST_TITLE, headers=headers)
-        self.assertEqual(response.data, 'Unable to connect to system of record.')
+        self.assertEqual(response.data, 'Unable to connect to system of record')
         self.assertEqual(response.status, '500 INTERNAL SERVER ERROR')
 
     def create_mint_exception(self, *args):
@@ -194,7 +195,29 @@ class TestSequenceFunctions(unittest.TestCase):
     def create_connection_exception(self, *args):
         raise ConnectionError('boom!')
 
+    def test_make_log_msg(self):
+        self.assertEqual(make_log_msg( 'Test Message' ), 'Test Message, Raised by: vagrant' )
 
+    def test_get_title_number_no_title(self):
+        self.assertEqual(get_title_number( {'test':'DN1'} ), 'Title number not found. Check JSON format' )
 
+    def test_get_title_number_title_only(self):
+        self.assertEqual(get_title_number( {'title_number':'DN1'} ), ( 'DN1', 'N/A', 'N/A' ) )
 
+    def test_get_title_number_title_and_abr(self):
+        self.assertEqual(get_title_number( {'title_number':'DN1', 'application_reference':'ABR1'} ), ( 'DN1', 'ABR1', 'N/A' ) )
 
+    def test_get_title_number_title_and_abr_and_gabr(self):
+        self.assertEqual(get_title_number( {'title_number':'DN1', 'application_reference':'ABR1', 'geometry_application_reference':'GABR1'} ), ( 'DN1', 'ABR1', 'GABR1' ) )
+
+    def test_get_title_number_data_no_title(self):
+        self.assertEqual(get_title_number( {'data':{'test':'DN1'}} ), 'Title number not found. Check JSON format' )
+
+    def test_get_title_number_data_title_only(self):
+        self.assertEqual(get_title_number( {'data':{'title_number':'DN1'}} ), ( 'DN1', 'N/A', 'N/A' ) )
+
+    def test_get_title_number_data_title_and_abr(self):
+        self.assertEqual(get_title_number( {'data':{'title_number':'DN1', 'application_reference':'ABR1'}} ), ( 'DN1', 'ABR1', 'N/A' ) )
+
+    def test_get_title_number_data_title_and_abr_and_gabr(self):
+        self.assertEqual(get_title_number( {'data':{'title_number':'DN1', 'application_reference':'ABR1', 'geometry_application_reference':'GABR1'}} ), ( 'DN1', 'ABR1', 'GABR1' ) )

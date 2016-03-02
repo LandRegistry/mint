@@ -30,19 +30,19 @@ def sign_title_version():
         title = json.dumps(request.get_json())
         signed_title = return_signed_data(title)
     except HTTPException as err:
-        logging.error('HTTP exception occurred.')
+        logging.error('HTTP exception occurred')
         logging.error( traceback.format_exc() )
-        return 'HTTP exception occurred.', err.code
+        return 'HTTP exception occurred', err.code
     except MintUserException as err:
-        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( make_log_msg( str(err), get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        logging.error( make_log_msg( 'Unknown error signing title.', get_title_number(request) ) )
+        logging.error( make_log_msg( 'Unknown error signing title', get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
-        return 'Unknown error signing title.', 500
+        return 'Unknown error signing title', 500
     else:
-        logging.info( make_log_msg( 'Completed signing title.', get_title_number(request) ) )
+        logging.info( make_log_msg( 'Completed signing title', get_title_number( request.get_json() ) ) )
         return str(signed_title), 200
 
 
@@ -62,23 +62,23 @@ def verify_title_version():
         the_result = jws.verify(header, title, signature, key)
 
     except HTTPException as err:
-        logging.error('HTTP exception occurred.')
+        logging.error('HTTP exception occurred')
         logging.error( traceback.format_exc() )
-        return 'HTTP exception occurred.', err.code
+        return 'HTTP exception occurred', err.code
     except SignatureError as err:
-        logging.error('Could not validate signature.')
-        return 'Could not validate signature.', 200
+        logging.error('Could not validate signature')
+        return 'Could not validate signature', 200
     except MintUserException as err:
-        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( make_log_msg( str(err), get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        logging.error( make_log_msg( 'Unknown error in application.server.verify_title_version.', get_title_number(request) ) )
+        logging.error( make_log_msg( 'Unknown error in application.server.verify_title_version', get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
-        return 'Unknown error in application.server.verify_title_version.', 500
+        return 'Unknown error in application.server.verify_title_version', 500
     else:
         if the_result:
-            logging.info( make_log_msg( 'Verified signed title.', get_title_number(request) ) )
+            logging.info( make_log_msg( 'Verified signed title', get_title_number( request.get_json() ) ) )
             return "verified", 200
         #otherwise aws will raise a SignatureError
 
@@ -97,28 +97,28 @@ def insert_new_title_version():
 
         headers = {'Content-Type': 'application/json'}
 
-        logging.info( make_log_msg( 'Signed and sending to system of record.', get_title_number(request) ) )
+        logging.info( make_log_msg( 'Signed and sending to system of record', get_title_number( request.get_json() ) ) )
 
         response = requests.post(url, data=save_this, headers=headers)
 
     except HTTPException as err:
-        logging.error('HTTP exception occurred.')
+        logging.error('HTTP exception occurred')
         logging.error( traceback.format_exc() )
-        return 'HTTP exception occurred.', err.code
+        return 'HTTP exception occurred', err.code
     except ConnectionError as err:
-        logging.error('Unable to connect to system of record.')
+        logging.error('Unable to connect to system of record')
         logging.error( traceback.format_exc() )
-        return 'Unable to connect to system of record.', 500
+        return 'Unable to connect to system of record', 500
     except MintUserException as err:
-        logging.error( make_log_msg( str(err), get_title_number(request) ) )
+        logging.error( make_log_msg( str(err), get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
         return str(err), 500
     except Exception as err:
-        logging.error( make_log_msg( 'Unknown error in application.server.insert_new_title_version.', get_title_number(request) ) )
+        logging.error( make_log_msg( 'Unknown error in application.server.insert_new_title_version', get_title_number( request.get_json() ) ) )
         logging.error( traceback.format_exc )
-        return 'Unknown error in application.server.insert_new_title_version.', 500
+        return 'Unknown error in application.server.insert_new_title_version', 500
     else:
-        logging.info( make_log_msg( "{}Status Code: {}".format(response.text, response.status_code), get_title_number(request) ) )
+        logging.info( make_log_msg( "{}Status Code: {}".format(response.text, response.status_code), get_title_number( request.get_json() ) ) )
         return response.text, response.status_code
 
 
@@ -130,7 +130,7 @@ def return_signed_data(data):
     except MintUserException:
         raise  # re-raise key exception, don't log again.
     except Exception as err:
-        signing_failed = 'Signing failed.  Check logs.'
+        signing_failed = 'Signing failed.  Check logs'
         raise MintUserException(signing_failed)
     else:
         return str(sig)
@@ -141,7 +141,7 @@ def build_system_of_record_json_string(original_data_dict, signed_data_string):
         system_of_record_dict = {"data": original_data_dict, "sig":signed_data_string}
         system_of_record_json = json.dumps(system_of_record_dict)
     except Exception as err:
-        formatting_failed = 'Formatting data failed.  Check logs.'
+        formatting_failed = 'Formatting data failed.  Check logs'
         raise MintUserException(formatting_failed)
     else:
         return system_of_record_json
@@ -152,7 +152,7 @@ def get_key(key_path='test_keys/test_private.pem'):
         key_data = open(key_path).read()
         key = RSA.importKey(key_data)
     except IOError as err:
-        no_key = 'Cannot find signing key. Check logs.'
+        no_key = 'Cannot find signing key. Check logs'
         raise MintUserException(no_key)
     else:
         return key
@@ -162,14 +162,11 @@ class MintUserException(Exception):
     pass
 
 
-def make_log_msg(message, title_number=''):
-    #     if app.config['ENABLE_AUTH'] is False:
-    #     return 'Raised by: test, Message: ' + message
-    # else:
-    if title_number == '':
-        return 'Raised by: ' + linux_user() + ', Message: ' + message
+def make_log_msg(message, title_number=('','','')):
+    if title_number == ('','',''):
+        return "{}, Raised by: {}".format( message, linux_user() )
     else:
-        return 'Raised by: ' + linux_user() + ', Title Number: ' + title_number + ', Message: ' + message
+        return "{}, Raised by: {}, Title Number: {}, ABR: {}, GeoABR: {}".format( message, linux_user(), title_number[0], title_number[1], title_number[2] )
 
 
 def linux_user():
@@ -179,14 +176,19 @@ def linux_user():
         return "failed to get user: %s" % err
 
 
-def get_title_number(request):
+def get_title_number( request_json ):
     #gets the title number from minted json
     try:
-        if 'data' not in request.get_json():
-            return request.get_json()['title_number']
+        if 'data' not in request_json:
+            tno = request_json['title_number']
+            abr = request_json.get('application_reference', 'N/A')
+            gabr = request_json.get('geometry_application_reference', 'N/A')
         else:
-            return request.get_json()['data']['title_number']
+            tno = request_json['data']['title_number']
+            abr = request_json['data'].get('application_reference', 'N/A')
+            gabr = request_json['data'].get('geometry_application_reference', 'N/A')
 
-    except Exception as err:
-        logging.error( 'Title number not found. Check JSON format:', request.get_json() )
-        return error_message + str(err)
+        return tno, abr, gabr
+    except Exception:
+        logging.error( 'Title number not found. Check JSON format:', request_json )
+        return 'Title number not found. Check JSON format'
